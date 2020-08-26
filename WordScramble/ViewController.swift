@@ -25,6 +25,8 @@ class ViewController: UITableViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptWord))
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(updateWord))
+        
         if let allWordUrl = Bundle.main.url(forResource: "start", withExtension: "txt"){
             if let startWord = try? String(contentsOf: allWordUrl){
                 allWord = startWord.components(separatedBy: "\n");
@@ -106,35 +108,11 @@ class ViewController: UITableViewController {
     }
     
     
+    @objc func updateWord() {
+        startGame()
+    }
     
-    
-    func isPossible(word:String)-> Bool {
-        guard var tempWord = heading?.lowercased() else { return false }
-        
-        for letter in word {
-            if let position = tempWord.firstIndex(of: letter) {
-                tempWord.remove(at: position)
-            } else {
-                return false
-            }
-        }
 
-        return true
-    }
-    
-    func isOriginal(word:String)-> Bool {
-        return !playerWord.contains(word);
-    }
-    
-    func isReal(word:String)-> Bool {
-        // it comes wheter it is real word is or not
-        let checker = UITextChecker()
-        let range = NSRange(location: 0, length: word.utf16.count)
-        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
-
-        return misspelledRange.location == NSNotFound
-    }
-    
     
     func textToImage(drawText text: String, inImage image: UIImage, atPoint point: CGPoint) -> UIImage {
         
@@ -161,3 +139,29 @@ class ViewController: UITableViewController {
 }
 
  
+extension ViewController {
+    func isPossible(word:String)-> Bool {
+        guard var tempWord = heading?.lowercased() else { return false }
+        
+        for letter in word {
+            if let position = tempWord.firstIndex(of: letter) {
+                tempWord.remove(at: position)
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+    func isOriginal(word:String)-> Bool {
+        return !playerWord.contains(word);
+    }
+    func isReal(word:String)-> Bool {
+        // it comes wheter it is real word is or not
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+
+        return misspelledRange.location == NSNotFound
+    }
+    
+}
