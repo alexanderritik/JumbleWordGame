@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UITableViewController {
     var allWord = [String]()
     var playerWord = [String]()
-    
+    var heading :  String?
     @IBOutlet var image: UIImageView!
     var img = #imageLiteral(resourceName: "yellow")
     
@@ -40,11 +40,11 @@ class ViewController: UITableViewController {
     
     
     func startGame(){
-        let heading = allWord.randomElement()
+        heading = allWord.randomElement()
         playerWord.removeAll(keepingCapacity: true)
         tableView.reloadData()
         
-        let img1 = textToImage(drawText: heading!, inImage: img, atPoint: CGPoint(x: 150, y: 220))
+        let img1 = textToImage(drawText: heading!, inImage: img, atPoint: CGPoint(x: 175, y: 220))
         image.image = img1
     }
 
@@ -74,29 +74,65 @@ class ViewController: UITableViewController {
     
     func submit(_ answer:String){
         let lowerAnswer = answer.lowercased()
-        
-        if isPossible(word: lowerAnswer){
-            if isReal(word: lowerAnswer){
-                if isOriginal(word: lowerAnswer){
+        var errorTitle:String?
+        var errorMessage:String?
+        if isPossible(word: lowerAnswer)
+        {
+            if isReal(word: lowerAnswer)
+            {
+                if isOriginal(word: lowerAnswer)
+                {
                     playerWord.insert(lowerAnswer, at: 0)
                     let indexPath = IndexPath(row: 0, section: 0)
                     tableView.insertRows(at: [indexPath], with: .automatic)
+                    return
+                }else {
+                      errorTitle = "Word not recognised"
+                      errorMessage = "You can't just make them up, you know!"
                 }
+            }else{
+                          errorTitle = "Word used already"
+                          errorMessage = "Be more original!"
             }
+        }else{
+              guard let title = heading?.lowercased() else { return }
+              errorTitle = "Word not possible"
+              errorMessage = "You can't spell that word from \(title)"
         }
-        
+    
+      let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+      ac.addAction(UIAlertAction(title: "OK", style: .default))
+      present(ac, animated: true)
     }
     
+    
+    
+    
     func isPossible(word:String)-> Bool {
-        return true;
+        guard var tempWord = heading?.lowercased() else { return false }
+        
+        for letter in word {
+            if let position = tempWord.firstIndex(of: letter) {
+                tempWord.remove(at: position)
+            } else {
+                return false
+            }
+        }
+
+        return true
     }
     
     func isOriginal(word:String)-> Bool {
-        return !allWord.contains(word);
+        return !playerWord.contains(word);
     }
     
     func isReal(word:String)-> Bool {
-        return true;
+        // it comes wheter it is real word is or not
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+
+        return misspelledRange.location == NSNotFound
     }
     
     
@@ -106,8 +142,8 @@ class ViewController: UITableViewController {
         let textFont = UIFont(name: "Helvetica Bold", size: 160)!
 
         let scale = UIScreen.main.scale
+        
         UIGraphicsBeginImageContextWithOptions(image.size, false, scale)
-
         let textFontAttributes = [
             NSAttributedString.Key.font: textFont,
             NSAttributedString.Key.foregroundColor: textColor,
@@ -120,7 +156,6 @@ class ViewController: UITableViewController {
 
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-
         return newImage!
     }
 }
