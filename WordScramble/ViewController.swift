@@ -41,14 +41,7 @@ class ViewController: UITableViewController {
     }
     
     
-    func startGame(){
-        heading = allWord.randomElement()
-        playerWord.removeAll(keepingCapacity: true)
-        tableView.reloadData()
-        
-        let img1 = textToImage(drawText: heading!, inImage: img, atPoint: CGPoint(x: 175, y: 220))
-        image.image = img1
-    }
+
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return playerWord.count
@@ -59,60 +52,6 @@ class ViewController: UITableViewController {
         cell.textLabel?.text = playerWord[indexPath.row]
         return cell
     }
-    
-    
-    @objc func promptWord(){
-        let ac = UIAlertController(title: "Enter answer", message: nil, preferredStyle: .alert)
-        ac.addTextField()
-        
-        let submitAction = UIAlertAction(title: "Submit", style: .default) {
-            [weak self, weak ac] action in
-            guard let answer = ac?.textFields?[0].text else { return }
-            self?.submit(answer)
-        }
-        ac.addAction(submitAction)
-        present(ac, animated: true)
-    }
-    
-    func submit(_ answer:String){
-        let lowerAnswer = answer.lowercased()
-        var errorTitle:String?
-        var errorMessage:String?
-        if isPossible(word: lowerAnswer)
-        {
-            if isReal(word: lowerAnswer)
-            {
-                if isOriginal(word: lowerAnswer)
-                {
-                    playerWord.insert(lowerAnswer, at: 0)
-                    let indexPath = IndexPath(row: 0, section: 0)
-                    tableView.insertRows(at: [indexPath], with: .automatic)
-                    return
-                }else {
-                      errorTitle = "Word not recognised"
-                      errorMessage = "You can't just make them up, you know!"
-                }
-            }else{
-                          errorTitle = "Word used already"
-                          errorMessage = "Be more original!"
-            }
-        }else{
-              guard let title = heading?.lowercased() else { return }
-              errorTitle = "Word not possible"
-              errorMessage = "You can't spell that word from \(title)"
-        }
-    
-      let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
-      ac.addAction(UIAlertAction(title: "OK", style: .default))
-      present(ac, animated: true)
-    }
-    
-    
-    @objc func updateWord() {
-        startGame()
-    }
-    
-
     
     func textToImage(drawText text: String, inImage image: UIImage, atPoint point: CGPoint) -> UIImage {
         
@@ -138,7 +77,8 @@ class ViewController: UITableViewController {
     }
 }
 
- 
+
+//for condition Checking
 extension ViewController {
     func isPossible(word:String)-> Bool {
         guard var tempWord = heading?.lowercased() else { return false }
@@ -164,4 +104,75 @@ extension ViewController {
         return misspelledRange.location == NSNotFound
     }
     
+}
+
+
+//function for navigation buttong
+extension ViewController {
+    
+    @objc func promptWord(){
+        let ac = UIAlertController(title: "Enter answer", message: nil, preferredStyle: .alert)
+        ac.addTextField()
+        
+        let submitAction = UIAlertAction(title: "Submit", style: .default) {
+            [weak self, weak ac] action in
+            guard let answer = ac?.textFields?[0].text else { return }
+            self?.submit(answer)
+        }
+        ac.addAction(submitAction)
+        present(ac, animated: true)
+    }
+    
+    @objc func updateWord() {
+          startGame()
+      }
+}
+
+
+//for start and submit game
+extension ViewController{
+
+        
+    func startGame(){
+        heading = allWord.randomElement()
+        playerWord.removeAll(keepingCapacity: true)
+        tableView.reloadData()
+        
+        let img1 = textToImage(drawText: heading!, inImage: img, atPoint: CGPoint(x: 175, y: 220))
+        image.image = img1
+    }
+    
+        func submit(_ answer:String){
+            let lowerAnswer = answer.lowercased()
+            var errorTitle:String?
+            var errorMessage:String?
+            if isPossible(word: lowerAnswer)
+            {
+                if isReal(word: lowerAnswer)
+                {
+                    if isOriginal(word: lowerAnswer)
+                    {
+                        playerWord.insert(lowerAnswer, at: 0)
+                        let indexPath = IndexPath(row: 0, section: 0)
+                        tableView.insertRows(at: [indexPath], with: .automatic)
+                        return
+                    }else {
+                          errorTitle = "Word not recognised"
+                          errorMessage = "You can't just make them up, you know!"
+                    }
+                }else{
+                              errorTitle = "Word used already"
+                              errorMessage = "Be more original!"
+                }
+            }else{
+                  guard let title = heading?.lowercased() else { return }
+                  errorTitle = "Word not possible"
+                  errorMessage = "You can't spell that word from \(title)"
+            }
+        
+          let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+          ac.addAction(UIAlertAction(title: "OK", style: .default))
+          present(ac, animated: true)
+        }
+        
 }
