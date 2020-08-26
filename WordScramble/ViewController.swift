@@ -34,7 +34,6 @@ class ViewController: UITableViewController {
     
     func startGame(){
         title = allWord.randomElement()
-        print(title)
         playerWord.removeAll(keepingCapacity: true)
         tableView.reloadData()
     }
@@ -51,8 +50,20 @@ class ViewController: UITableViewController {
     
     
     @objc func promptWord(){
+        let ac = UIAlertController(title: "Enter Answere", message: nil, preferredStyle: .alert)
+        ac.addTextField()
         
+        let submitAction = UIAlertAction(title: "Submit", style: .default){
+            [weak self ,weak ac] action in
+            guard let answer = ac?.textFields?[0].text else{ return }
+            self.submit(answer)
+        }
+        
+        present(ac,animated: true)
     }
+    
+    
+    
 }
 
  
